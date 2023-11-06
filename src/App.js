@@ -1,23 +1,43 @@
-import logo from './logo.svg';
-import './App.css';
-
+import React, { useState, useEffect } from 'react';
+import ShortenText from "./utils/ShortenText.js";
+import ToText from "./utils/ToText.js";
+import CategoryList from "./utils/CategoryList.js";
 function App() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    fetch('https://api.rss2json.com/v1/api.json?rss_url=https://dev.to/feed/sreeharshrajan')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        setData(data.items);
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>JSON Data</h1>
+      <ul>
+        {data.map((item, index) => (
+          <li key={index}>
+            <div>
+            <CategoryList categories={item.categories}/>
+
+            </div>
+
+            <h3>{item.title}</h3>
+            {/* <p dangerouslySetInnerHTML={{ __html: item.description }} /> */}
+            <p>{`${ShortenText(
+              ToText(item.description),
+              0,
+              120
+            )}...`}</p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
